@@ -1,0 +1,10 @@
+streamlit
+torch
+transformers
+pandas
+plotly
+seaborn
+matplotlib
+scikit-learn
+nltk
+pyvi 
