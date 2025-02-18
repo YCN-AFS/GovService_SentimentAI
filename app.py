@@ -4,6 +4,8 @@ import json
 import plotly.express as px
 from sentiment_analysis import SentimentAnalyzer
 import torch
+import requests
+import os
 
 # Thiết lập giao diện
 st.set_page_config(
@@ -67,8 +69,22 @@ st.markdown("""
 
 @st.cache_resource
 def load_model():
+    """Load model from Hugging Face"""
+    model_path = 'phobert_sentiment.pth'
+    if not os.path.exists(model_path):
+        # Hiển thị trạng thái tải
+        with st.spinner('Đang tải model từ Hugging Face...'):
+            url = "https://huggingface.co/FoxCodes/GovService_SentimentAI/resolve/main/phobert_sentiment.pth?download=true"
+            response = requests.get(url)
+            
+            # Lưu model
+            with open(model_path, 'wb') as f:
+                f.write(response.content)
+            st.success('✅ Đã tải xong model!')
+    
+    # Khởi tạo analyzer với model đã tải
     analyzer = SentimentAnalyzer()
-    analyzer.load_model('phobert_sentiment.pth')
+    analyzer.load_model(model_path)
     return analyzer
 
 def analyze_single_text(analyzer, text):
