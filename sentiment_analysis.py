@@ -427,8 +427,26 @@ class SentimentAnalyzer:
 
     def load_model(self, path='phobert_sentiment.pth'):
         """Tải mô hình đã huấn luyện"""
-        self.phobert_model.load_state_dict(torch.load(path))
-        print(f"Đã tải mô hình từ: {path}")
+        try:
+            # Tải state dict
+            state_dict = torch.load(path, map_location=torch.device('cpu'))
+            
+            # Khởi tạo classifier layers nếu chưa có
+            self.phobert_model.classifier = torch.nn.Sequential(
+                torch.nn.Linear(768, 768),
+                torch.nn.ReLU(),
+                torch.nn.Dropout(0.1),
+                torch.nn.Linear(768, 2)
+            )
+            
+            # Load state dict
+            self.phobert_model.load_state_dict(state_dict)
+            self.phobert_model.eval()
+            print(f"Đã tải mô hình từ: {path}")
+            return True
+        except Exception as e:
+            print(f"Lỗi khi tải mô hình: {str(e)}")
+            return False
 
 def main():
     # Thiết lập cấu hình CUDA để tránh phân mảnh bộ nhớ

@@ -70,22 +70,22 @@ st.markdown("""
 @st.cache_resource
 def load_model():
     """Load model from Hugging Face"""
-    model_path = 'phobert_sentiment.pth'
-    if not os.path.exists(model_path):
-        # Hiển thị trạng thái tải
-        with st.spinner('Đang tải model từ Hugging Face...'):
+    try:
+        model_path = 'phobert_sentiment.pth'
+        if not os.path.exists(model_path):
             url = "https://huggingface.co/FoxCodes/GovService_SentimentAI/resolve/main/phobert_sentiment.pth?download=true"
             response = requests.get(url)
-            
-            # Lưu model
             with open(model_path, 'wb') as f:
                 f.write(response.content)
-            st.success('✅ Đã tải xong model!')
-    
-    # Khởi tạo analyzer với model đã tải
-    analyzer = SentimentAnalyzer()
-    analyzer.load_model(model_path)
-    return analyzer
+        
+        analyzer = SentimentAnalyzer()
+        success = analyzer.load_model(model_path)
+        if not success:
+            return None
+        return analyzer
+    except Exception as e:
+        print(f"Lỗi: {str(e)}")
+        return None
 
 def analyze_single_text(analyzer, text):
     result = analyzer.predict_phobert(text)
@@ -126,8 +126,13 @@ def main():
     else:
         st.warning("⚠️ CUDA not available - Using CPU")
     
-    # Load model
-    analyzer = load_model()
+    # Hiển thị trạng thái tải model
+    with st.spinner('Đang tải model...'):
+        analyzer = load_model()
+        if analyzer is None:
+            st.error("Không thể tải model. Vui lòng thử lại!")
+            return
+        st.success('✅ Đã tải xong model!')
     
     # Sidebar
     st.sidebar.title("📌 Chức năng")
