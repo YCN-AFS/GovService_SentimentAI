@@ -1,0 +1,10 @@
+__pycache__/
+Trash/
+Scrape-review-data/
+test.py
+test_json.py
+*.pyc
+testdata.xlsx
+test_results.csv
+test-feedback-*.json
+phobert_sentiment.pth
